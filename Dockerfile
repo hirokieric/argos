@@ -10,12 +10,21 @@ FROM base AS build
 ARG TURBO_TEAM
 ENV TURBO_TEAM=$TURBO_TEAM
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 RUN pnpm fetch
 
 COPY . /app
 RUN pnpm install --offline --frozen-lockfile --config.confirmModulesPurge=false
 RUN --mount=type=secret,id=TURBO_TOKEN \
-  TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN)" BUILD_MODE=production pnpm run build
+  TURBO_TOKEN="$(cat /run/secrets/TURBO_TOKEN 2>/dev/null || true)" BUILD_MODE=production pnpm run build
 RUN pnpm run clean-deps
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
+
+FROM base AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app /app
+
+# Default to web process; worker container overrides via CMD.
+EXPOSE 4001
+CMD ["node", "apps/backend/dist/processes/proc/web.js"]

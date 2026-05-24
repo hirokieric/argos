@@ -214,6 +214,30 @@ export function createConfig() {
         default: "https://files.argos-ci.com/development/",
         env: "S3_PUBLIC_IMAGE_BASE_URL",
       },
+      endpoint: {
+        doc: "S3 endpoint URL (for self-hosted MinIO; empty for AWS)",
+        format: String,
+        default: "",
+        env: "S3_ENDPOINT",
+      },
+      forcePathStyle: {
+        doc: "Use path-style URLs (required by MinIO)",
+        format: Boolean,
+        default: false,
+        env: "S3_FORCE_PATH_STYLE",
+      },
+      accessKeyId: {
+        doc: "S3 access key ID (explicit; AWS uses default credential chain when empty)",
+        format: String,
+        default: "",
+        env: "S3_ACCESS_KEY_ID",
+      },
+      secretAccessKey: {
+        doc: "S3 secret access key (explicit; AWS uses default credential chain when empty)",
+        format: String,
+        default: "",
+        env: "S3_SECRET_ACCESS_KEY",
+      },
     },
     github: {
       appId: {
