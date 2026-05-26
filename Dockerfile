@@ -25,6 +25,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app /app
 
-# Default to web process; worker container overrides via CMD.
+# One image, two processes — env ARGOS_PROC selects which to run.
+#   web (default): the Express HTTP server on :4001
+#   worker:        the RabbitMQ consumer (no port)
 EXPOSE 4001
-CMD ["node", "apps/backend/dist/processes/proc/web.js"]
+CMD ["sh", "-c", "exec node apps/backend/dist/processes/proc/${ARGOS_PROC:-web}.js"]
